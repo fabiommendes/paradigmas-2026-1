@@ -1,144 +1,67 @@
 import dis
-import timeit
+from bytecode import Bytecode, Instr, Label
 from types import FunctionType
 
-from bytecode import Bytecode, Compare, Instr, Label
-
-N_TIMES = 3_000_000
-
-
-def fib(n):
-    a = 1
-    b = 1
-    for _ in range(n - 1):
-        aux = b
-        b = a + b
-        a = aux
-    return b
+def fibr(n):
+    return 1 if n < 2 else fibr(n - 1) + fibr(n - 2)
 
 
-def fib_while(n):
-    a = 1
-    b = 1
-    while n > 1:
-        aux = b
-        b = a + b
-        a = aux
-        n -= 1
-    return b
+def fib_py(n):
+    x = 1
+    y = 1
+    for _ in range(n):
+        aux = y
+        y = x + y
+        x = aux
+
+    return x
 
 
-print("Bytecodes de fib:")
-dis.dis(fib_while)
-
-
-# Recriamos fib-for manualmente
-LOOP_START = Label()
-LOOP_END = Label()
+BEGIN_OF_LOOP = Label()
+END_OF_LOOP = Label()
 
 code = Bytecode(
     [
-        # a = 1
+        # x = 1
         Instr("LOAD_CONST", 1),
-        Instr("STORE_FAST", "a"),
-        # b = a
+        Instr("STORE_FAST", "x"),
+        # y = 1
         Instr("LOAD_CONST", 1),
-        Instr("STORE_FAST", "b"),
-        # range(n - 1)
+        Instr("STORE_FAST", "y"),
+        # iter(range(n))
         Instr("LOAD_GLOBAL", "range"),
         Instr("LOAD_FAST", "n"),
-        Instr("LOAD_CONST", 1),
-        Instr("BINARY_SUBTRACT"),
         Instr("CALL_FUNCTION", 1),
         Instr("GET_ITER"),
         # for _ in TOS:
-        LOOP_START,
-        Instr("FOR_ITER", LOOP_END),
+        BEGIN_OF_LOOP,
+        Instr("FOR_ITER", END_OF_LOOP),
         Instr("STORE_FAST", "_"),
-        # aux = b
-        Instr("LOAD_FAST", "b"),
+        # aux = y
+        Instr("LOAD_FAST", "y"),
         Instr("STORE_FAST", "aux"),
-        # b = a + b
-        Instr("LOAD_FAST", "a"),
-        Instr("LOAD_FAST", "b"),
+        # y = x + y
+        Instr("LOAD_FAST", "x"),
+        Instr("LOAD_FAST", "y"),
         Instr("BINARY_ADD"),
-        Instr("STORE_FAST", "b"),
-        # a = aux
+        Instr("STORE_FAST", "y"),
+        # x = aux
         Instr("LOAD_FAST", "aux"),
-        Instr("STORE_FAST", "a"),
-        # fim do loop
-        Instr("JUMP_ABSOLUTE", LOOP_START),
-        LOOP_END,
-        # return b
-        Instr("LOAD_FAST", "b"),
+        Instr("STORE_FAST", "x"),
+        Instr("JUMP_ABSOLUTE", BEGIN_OF_LOOP),
+        END_OF_LOOP,
+        # return x
+        Instr("LOAD_FAST", "x"),
         Instr("RETURN_VALUE"),
     ]
 )
-code.argnames = ["n"]
 code.argcount = 1
-fib_manual = FunctionType(code.to_code(), {"range": range}, "fib_manual")
-
-
-# Recriamos fib-while manualmente
-code = Bytecode(
-    [
-        # a = 1
-        Instr("LOAD_CONST", 1),
-        Instr("STORE_FAST", "a"),
-        # b = a
-        Instr("LOAD_CONST", 1),
-        Instr("STORE_FAST", "b"),
-        # while n > 1:
-        LOOP_START,
-        Instr("LOAD_FAST", "n"),
-        Instr("LOAD_CONST", 1),
-        Instr("COMPARE_OP", Compare.GT),
-        Instr("POP_JUMP_IF_FALSE", LOOP_END),
-        # aux = b
-        Instr("LOAD_FAST", "b"),
-        Instr("STORE_FAST", "aux"),
-        # b = a + b
-        Instr("LOAD_FAST", "a"),
-        Instr("LOAD_FAST", "b"),
-        Instr("BINARY_ADD"),
-        Instr("STORE_FAST", "b"),
-        # a = aux
-        Instr("LOAD_FAST", "aux"),
-        Instr("STORE_FAST", "a"),
-        # n -= 1
-        Instr("LOAD_FAST", "n"),
-        Instr("LOAD_CONST", 1),
-        Instr("INPLACE_SUBTRACT"),
-        Instr("STORE_FAST", "n"),
-        # fim do loop
-        Instr("JUMP_ABSOLUTE", LOOP_START),
-        LOOP_END,
-        # return b
-        Instr("LOAD_FAST", "b"),
-        Instr("RETURN_VALUE"),
-    ]
-)
 code.argnames = ["n"]
-code.argcount = 1
-fib_while_manual = FunctionType(code.to_code(), {"range": range}, "fib_while_manual")
 
-# Valores
-print(f"{fib(10)=}\n{fib_while(10)=}\n{fib_manual(10)=}\n{fib_while_manual(10)=}\n")
+fib = FunctionType(code.to_code(), {"range": range}, "fib")
 
-# Tempos de execução
-print(
-    "t_fib =",
-    timeit.timeit("fib(10)", globals=globals(), number=N_TIMES),
-)
-print(
-    "t_fib_while =",
-    timeit.timeit("fib_while(10)", globals=globals(), number=N_TIMES),
-)
-print(
-    "t_fib_manual=",
-    timeit.timeit("fib_manual(10)", globals=globals(), number=N_TIMES),
-)
-print(
-    "t_fib_while_manual=",
-    timeit.timeit("fib_while_manual(10)", globals=globals(), number=N_TIMES),
-)
+
+for i in range(10):
+    print(fib(i))
+
+# dis.dis(fib_py)
