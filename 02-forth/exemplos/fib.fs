@@ -8,7 +8,8 @@
 ;
 
 \ O comando "do ... loop" executa um bloco de código um número específico de 
-\ vezes. O comando "i" é usado para acessar o índice atual do loop.
+\ vezes. "do" espera dois valores na pilha: o limite superior e o limite inferior. 
+\ O comando "i" é usado para acessar o contador na iteração atual.
 : fat-loop ( n -- n! )
     1 swap 1+ 1
     do
