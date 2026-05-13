@@ -1,0 +1,51 @@
+@import "tailwindcss";
+@plugin "daisyui";
+:root {
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  position: fixed;
+  background-color: #b90b0b;
+  color-scheme: light dark;
+  color: magenta;
+}
+
+.card {
+  border: 2px solid black;
+  color: rgb(27, 4, 4);
+  font-size: 8rem;
+  font-weight: bold;
+  background: rgb(52, 143, 191);
+  width: 15rem;
+  padding: 2rem;
+  height: 15rem;
+  text-align: center;
+  display: flex;
+      justify-content: center;
+}
+
+.card-closed {
+  background: rgb(75, 191, 52);
+}
+
+.card-empty {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 1rem;
+  margin: auto;
+  width: 100%;
+}
+
+.victory-dialog {
+  padding: 10rem;
+  background: black;
+  color: white;
+  position: absolute;
+  margin: 10rem;
+  top: 10rem;
+  border-radius: 1rem;
+  font-size: 3rem;
+  font-weight: bold;
+}
