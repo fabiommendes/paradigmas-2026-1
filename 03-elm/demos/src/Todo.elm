@@ -13,7 +13,7 @@ type alias Model =
 
 
 type Msg
-    = AddTodoAddTAddTodoodo
+    = AddTodo
     | UpdateInput String
     | DelTodo Int
 

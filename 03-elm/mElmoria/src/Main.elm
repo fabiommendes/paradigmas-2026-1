@@ -8,6 +8,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Msg exposing (Msg(..))
 import Platform.Sub exposing (Sub)
+import Random exposing (..)
 
 
 
@@ -25,16 +26,26 @@ type GameState
 type alias Model =
     { cards : Array Card.Model
     , state : GameState
+    , seed : Seed
     }
 
 
-main : Program () Model Msg
+main : Program Seed Model Msg
 main =
     Browser.element
         { init =
             \seed ->
-                ( { cards = Array.fromList Card.initialCards
+                let
+                    _ = Debug.log "flag" seed
+                    cards =
+                        Card.initialCards
+
+                    ( newSeed, newCards ) =
+                        shuffle seed cards
+                in
+                ( { cards = Array.fromList newCards
                   , state = NoCardClicked
+                  , seed = newSeed
                   }
                 , Cmd.none
                 )
@@ -56,9 +67,14 @@ update msg model =
             model |> noCmd
 
         ( RestartGame, _ ) ->
+            let
+                ( newSeed, newCards ) =
+                    shuffle model.seed Card.initialCards
+            in
             { model
-                | cards = Array.fromList Card.initialCards
+                | cards = Array.fromList newCards
                 , state = NoCardClicked
+                , seed = newSeed
             }
                 |> noCmd
 
