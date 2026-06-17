@@ -11,7 +11,7 @@ try:
 except (IndexError, ValueError):
     n = 15
 
-lines = []
+lines: list[str] = []
 while len(lines) < n:
     a = random.choice(names)
     b = random.choice(names)
@@ -22,4 +22,4 @@ while len(lines) < n:
 with open("tinder_db.pl", "w") as f:
     f.write("% Arquivo gerado por make_tinder_db.py\n\n")
     f.write("% gosta(X, Y) => X gosta de Y\n")
-    f.write("\n".join(lines))
+    f.write("\n".join((lines)))
